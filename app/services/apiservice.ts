@@ -3,13 +3,14 @@ import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const BASE_URL = 'https://jsonplaceholder.typicode.com';
-
+// this should be a Singleton
 // Create an instance of the API
+//this api calls don't have proper error handling at the moment
 const api = axios.create({
     baseURL: BASE_URL,
 });
 
-// Add request interceptors
+// Add request interceptors incase you need any interceptors in future
 api.interceptors.request.use(
     (config) => {
         console.log('Request Interceptor:', config);

@@ -1,6 +1,9 @@
 import { createContext, ReactNode, useContext } from "react";
 import Toast from "react-native-toast-message";
 
+
+
+// this is a reusable toast
 interface ToastContextType {
     showToast: (message: string, type?: "success" | "error" | "info") => void;
 }

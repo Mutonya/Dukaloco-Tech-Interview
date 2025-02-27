@@ -15,3 +15,4 @@ export interface CreatePost{
 export interface Editpost extends CreatePost{
     id:number
 }
+

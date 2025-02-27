@@ -4,10 +4,12 @@ import { DukaContext } from "@/app/context/DukaContext";
 import { useRouter } from "expo-router";
 import { AntDesign } from "@expo/vector-icons";
 import styles from "@/app/styles";
+import {useToast} from "@/app/components/ToastContext";
 
 export default function Index() {
     const router = useRouter();
     const dukaContext = useContext(DukaContext);
+    const { showToast } = useToast();
 
     if (!dukaContext) {
         return (

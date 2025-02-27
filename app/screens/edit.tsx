@@ -2,7 +2,7 @@ import { useState, useContext } from "react";
 import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
 import { useLocalSearchParams, router } from "expo-router";
 import { DukaContext } from "@/app/context/DukaContext";
-import { useToast } from "@/app/components/ToastContext"; // Import the useToast hook
+import { useToast } from "@/app/components/ToastContext";
 import styles from "@/app/styles";
 
 export default function EditPostScreen() {

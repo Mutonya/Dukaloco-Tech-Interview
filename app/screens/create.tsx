@@ -3,12 +3,13 @@ import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
 import { router } from "expo-router";
 import { DukaContext } from "@/app/context/DukaContext";
 import styles from "@/app/styles";
+import { useToast } from "@/app/components/ToastContext";
 
 const CreatePostScreen = () => {
     const [title, setTitle] = useState("");
     const [body, setBody] = useState("");
     const [userId] = useState(1); // Default user ID
-
+    const { showToast } = useToast(); // Use the useToast hook
     const dukaContext = useContext(DukaContext);
 
     if (!dukaContext) {
@@ -27,8 +28,17 @@ const CreatePostScreen = () => {
             return;
         }
 
-        addpost({ title, body, userId });
-        router.back();
+        try {
+            addpost({ title, body, userId });
+            showToast("Post Created successfully!", "success"); // Show success toast
+            router.back();
+
+
+        }catch (err){
+            showToast("Failed to create post.", "error"); // Show error toast
+        }
+
+
     };
 
     return (
