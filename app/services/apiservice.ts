@@ -1,4 +1,4 @@
-import {BlogPosts, Editpost} from "@/app/types/blogposttypes";
+import {BlogPosts, CreatePost, Editpost} from "@/app/types/blogposttypes";
 import axios from "axios";
 
 //define your api calls here
@@ -8,6 +8,10 @@ export const fetchBlogPosts = async ():Promise<BlogPosts[]> =>{
     const blogposts = await axios.get(`${BASE_URL}/posts`);
     return blogposts.data
 }
+export const createPost = async (post: CreatePost): Promise<BlogPosts> => {
+    const response = await axios.post(`${BASE_URL}/posts`, post);
+    return response.data;
+};
 
 export const editPost = async (id: number, post: Editpost): Promise<BlogPosts> => {
     const response = await axios.put(`${BASE_URL}/posts/${id}`, post);
