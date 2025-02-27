@@ -4,20 +4,55 @@ import axios from "axios";
 //define your api calls here
 const BASE_URL = 'https://jsonplaceholder.typicode.com';  //define the base url here
 
+
+//create an instance of the api
+const api = axios.create({
+    baseURL:BASE_URL
+})
+
+//add request intercepors
+
+api.interceptors.request.use(
+    (config) => {
+        // our api doesn't require headers at the moment
+        console.log('Request Interceptor:', config);
+        return config;
+    },
+    (error) => {
+        // intercept api call errors here
+        console.error('Request Error Interceptor:', error);
+        return Promise.reject(error);
+    }
+);
+
+// Response interceptor
+api.interceptors.response.use(
+    (response) => {
+        // if there is a succesful api call
+        console.log('Response Interceptor:', response);
+        return response;
+    },
+    (error) => {
+        // Handle response errors globally
+        console.error('Response Error Interceptor:', error);
+        return Promise.reject(error);
+    }
+);
+
 export const fetchBlogPosts = async ():Promise<BlogPosts[]> =>{
-    const blogposts = await axios.get(`${BASE_URL}/posts`);
+    const blogposts = await api.get(`${BASE_URL}/posts`);
     return blogposts.data
 }
 export const createPost = async (post: CreatePost): Promise<BlogPosts> => {
-    const response = await axios.post(`${BASE_URL}/posts`, post);
+    const response = await api.post(`${BASE_URL}/posts`, post);
     return response.data;
 };
 
 export const editPost = async (id: number, post: Editpost): Promise<BlogPosts> => {
-    const response = await axios.put(`${BASE_URL}/posts/${id}`, post);
+    const response = await api.put(`${BASE_URL}/posts/${id}`, post);
     return response.data;
 };
 
 export const deletePost = async (id: number): Promise<void> => {
-    await axios.delete(`${BASE_URL}/posts/${id}`);
+    await api.delete(`${BASE_URL}/posts/${id}`);
 };

@@ -1,10 +1,29 @@
-import { FlatList, Text, TouchableOpacity, View, StyleSheet } from "react-native";
+import {FlatList, Text, TouchableOpacity, View, StyleSheet, ActivityIndicator} from "react-native";
 import { useContext } from "react";
 import { DukaContext } from "@/app/context/DukaContext";
 import { Link } from "expo-router";
 
 export default function Index() {
-    const { blogPosts, deletepost, currentUser } = useContext(DukaContext);
+    const { blogPosts, deletepost, currentUser,loading,error } = useContext(DukaContext);
+
+
+
+    if (loading) {
+        return (
+            <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color="#0000ff" />
+            </View>
+        );
+    }
+
+    if (error) {
+        return (
+            <View style={styles.errorContainer}>
+                <Text style={styles.errorText}>{error}</Text>
+            </View>
+        );
+    }
+
 
     return (
         <FlatList
@@ -68,5 +87,19 @@ const styles = StyleSheet.create({
     deleteButtonText: {
         color: "#FFF",
         fontSize: 14,
+    },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    errorContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    errorText: {
+        color: 'red',
+        fontSize: 16,
     },
 });
