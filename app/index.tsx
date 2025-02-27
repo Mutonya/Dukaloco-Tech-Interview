@@ -67,7 +67,7 @@ export default function Index() {
                             </View>
                         </View>
                     )}
-                    onEndReached={loadMorePosts}
+                    onEndReached={loadMorePosts}  //try to load more post before end of the last item
                     onEndReachedThreshold={0.5}
                     refreshControl={
                         <RefreshControl refreshing={refreshing} onRefresh={refreshPosts} />
