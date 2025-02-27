@@ -1,5 +1,4 @@
 import {BlogPosts, CreatePost, Editpost} from "@/app/types/blogposttypes";
-import id from "ajv/lib/vocabularies/core/id";
 import {createContext, ReactNode, useEffect, useState} from "react";
 import {createPost, deletePost, editPost, fetchBlogPosts} from "@/app/services/apiservice";
 
@@ -7,7 +6,7 @@ import {createPost, deletePost, editPost, fetchBlogPosts} from "@/app/services/a
 interface DukaContextType{
     blogPosts:BlogPosts[];
     addpost:(blogpost:CreatePost) => void;
-    editPost:(id:number,blogpost:Editpost) =>void
+    updatePost:(id:number,blogpost:Editpost) =>void
     deletepost:(id:number)=>void;
     currentUser: { id: number };
     loading:boolean;
@@ -21,8 +20,6 @@ export const Dukaprovider = ({ children }: { children: ReactNode }) =>{
     const [currentUser] = useState({id:1}) // we assume the current userId is 1
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    //use effect is similar to side effect
-
 
     const fetchPosts = async ()=>{
 
@@ -58,20 +55,22 @@ export const Dukaprovider = ({ children }: { children: ReactNode }) =>{
         }
     };
 
-    const editPost = async (id:number,editPost:Editpost)=>{
+    const updatePost = async (id: number, updatedPost: Editpost) => {
+        setLoading(true);
+        setError(null);
 
-        setLoading(true)
-        setError(null)
         try {
-            await editPost(id,editPost);
-            setPosts(blogPosts.map((post) => (post.id === id ? editPost : post)));
-        }catch (err){
-            setError("Failed to update Post")
-        }finally {
-            setLoading(false)
+            await editPost(id, updatedPost);
+            setPosts((prevPosts) =>
+                prevPosts.map((post) => (post.id === id ? updatedPost : post))
+            );
+        } catch (err) {
+            setError("Failed to update post");
+        } finally {
+            setLoading(false);
         }
+    };
 
-    }
 
     const deletepost = async (id: number) => {
         if (currentUser.id === 1) {
@@ -90,7 +89,7 @@ export const Dukaprovider = ({ children }: { children: ReactNode }) =>{
         }
     };
     return (
-        <DukaContext.Provider value={{ blogPosts, addpost, editPost, deletepost, currentUser,loading,error }}>
+        <DukaContext.Provider value={{ blogPosts, addpost, updatePost, deletepost, currentUser, loading, error }}>
             {children}
 
         </DukaContext.Provider>

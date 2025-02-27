@@ -1,5 +1,6 @@
 import {BlogPosts, CreatePost, Editpost} from "@/app/types/blogposttypes";
 import axios from "axios";
+import {useToast} from "@/app/components/ToastContext";
 
 //define your api calls here
 const BASE_URL = 'https://jsonplaceholder.typicode.com';  //define the base url here
@@ -29,6 +30,7 @@ api.interceptors.request.use(
 api.interceptors.response.use(
     (response) => {
         // if there is a succesful api call
+
         console.log('Response Interceptor:', response);
         return response;
     },
@@ -40,6 +42,9 @@ api.interceptors.response.use(
 );
 
 export const fetchBlogPosts = async ():Promise<BlogPosts[]> =>{
+    //this api should be paginated and some caching should also take place
+
+
     const blogposts = await api.get(`${BASE_URL}/posts`);
     return blogposts.data
 }
