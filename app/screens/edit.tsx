@@ -2,11 +2,13 @@ import { useState, useContext } from "react";
 import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
 import { useLocalSearchParams, router } from "expo-router";
 import { DukaContext } from "@/app/context/DukaContext";
+import { useToast } from "@/app/components/ToastContext"; // Import the useToast hook
 import styles from "@/app/styles";
 
 export default function EditPostScreen() {
     const { id } = useLocalSearchParams<{ id: string }>();
     const dukaContext = useContext(DukaContext);
+    const { showToast } = useToast(); // Use the useToast hook
 
     if (!dukaContext) {
         return (
@@ -28,8 +30,13 @@ export default function EditPostScreen() {
             return;
         }
 
-        await updatePost(Number(id), { id: Number(id), title, body, userId: post?.userId || 1 });
-        router.replace("/");
+        try {
+            await updatePost(Number(id), { id: Number(id), title, body, userId: post?.userId || 1 });
+            showToast("Post updated successfully!", "success"); // Show success toast
+            router.replace("/");
+        } catch (error) {
+            showToast("Failed to update post.", "error"); // Show error toast
+        }
     };
 
     return (

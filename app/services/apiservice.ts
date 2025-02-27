@@ -1,63 +1,105 @@
-import {BlogPosts, CreatePost, Editpost} from "@/app/types/blogposttypes";
+import { BlogPosts, CreatePost, Editpost } from "@/app/types/blogposttypes";
 import axios from "axios";
-import {useToast} from "@/app/components/ToastContext";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-//define your api calls here
-const BASE_URL = 'https://jsonplaceholder.typicode.com';  //define the base url here
+const BASE_URL = 'https://jsonplaceholder.typicode.com';
 
-
-//create an instance of the api
+// Create an instance of the API
 const api = axios.create({
-    baseURL:BASE_URL
-})
+    baseURL: BASE_URL,
+});
 
-//add request intercepors
-
+// Add request interceptors
 api.interceptors.request.use(
     (config) => {
-        // our api doesn't require headers at the moment
         console.log('Request Interceptor:', config);
         return config;
     },
     (error) => {
-        // intercept api call errors here
         console.error('Request Error Interceptor:', error);
         return Promise.reject(error);
     }
 );
 
-// Response interceptor
+// Add response interceptors
 api.interceptors.response.use(
     (response) => {
-        // if there is a succesful api call
-
         console.log('Response Interceptor:', response);
         return response;
     },
     (error) => {
-        // Handle response errors globally
         console.error('Response Error Interceptor:', error);
         return Promise.reject(error);
     }
 );
 
-export const fetchBlogPosts = async ():Promise<BlogPosts[]> =>{
-    //this api should be paginated and some caching should also take place
+// Cache key for storing blog posts
+const CACHE_KEY = 'cached_blog_posts';
 
+// Fetch blog posts with pagination and caching
+export const fetchBlogPosts = async (page: number = 1, limit: number = 10): Promise<BlogPosts[]> => {
+    try {
+        const response = await api.get(`${BASE_URL}/posts`, {
+            params: {
+                _page: page,
+                _limit: limit,
+            },
+        });
 
-    const blogposts = await api.get(`${BASE_URL}/posts`);
-    return blogposts.data
-}
+        // Cache the fetched posts
+        if (page === 1) {
+            await AsyncStorage.setItem(CACHE_KEY, JSON.stringify(response.data));
+        } else {
+            const cachedPosts = await AsyncStorage.getItem(CACHE_KEY);
+            const existingPosts = cachedPosts ? JSON.parse(cachedPosts) : [];
+            const newPosts = [...existingPosts, ...response.data];
+            await AsyncStorage.setItem(CACHE_KEY, JSON.stringify(newPosts));
+        }
+
+        return response.data;
+    } catch (error) {
+        // If offline, return cached posts
+        const cachedPosts = await AsyncStorage.getItem(CACHE_KEY);
+        if (cachedPosts) {
+            return JSON.parse(cachedPosts);
+        }
+        throw new Error('Failed to fetch posts. You are offline.');
+    }
+};
+
+// Create a new post
 export const createPost = async (post: CreatePost): Promise<BlogPosts> => {
     const response = await api.post(`${BASE_URL}/posts`, post);
+    // Update cached posts
+    const cachedPosts = await AsyncStorage.getItem(CACHE_KEY);
+    if (cachedPosts) {
+        const updatedPosts = [response.data, ...JSON.parse(cachedPosts)];
+        await AsyncStorage.setItem(CACHE_KEY, JSON.stringify(updatedPosts));
+    }
     return response.data;
 };
 
+// Edit an existing post
 export const editPost = async (id: number, post: Editpost): Promise<BlogPosts> => {
     const response = await api.put(`${BASE_URL}/posts/${id}`, post);
+    // Update cached posts
+    const cachedPosts = await AsyncStorage.getItem(CACHE_KEY);
+    if (cachedPosts) {
+        const updatedPosts = JSON.parse(cachedPosts).map((p: BlogPosts) =>
+            p.id === id ? response.data : p
+        );
+        await AsyncStorage.setItem(CACHE_KEY, JSON.stringify(updatedPosts));
+    }
     return response.data;
 };
 
+// Delete a post
 export const deletePost = async (id: number): Promise<void> => {
     await api.delete(`${BASE_URL}/posts/${id}`);
+    // Update cached posts
+    const cachedPosts = await AsyncStorage.getItem(CACHE_KEY);
+    if (cachedPosts) {
+        const updatedPosts = JSON.parse(cachedPosts).filter((p: BlogPosts) => p.id !== id);
+        await AsyncStorage.setItem(CACHE_KEY, JSON.stringify(updatedPosts));
+    }
 };

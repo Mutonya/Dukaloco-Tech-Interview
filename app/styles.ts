@@ -6,6 +6,16 @@ const styles = StyleSheet.create({
         padding: 20,
         backgroundColor: "#fff",
     },
+    offlineContainer: {
+        backgroundColor: "#ffcc00",
+        padding: 10,
+        borderRadius: 5,
+        marginBottom: 16,
+    },
+    offlineText: {
+        color: "#000",
+        fontSize: 14,
+    },
     card: {
         backgroundColor: "white",
         padding: 16,
@@ -39,6 +49,15 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         alignItems: "center",
     },
+    retryButton: {
+        backgroundColor: '#007bff',
+        padding: 10,
+        borderRadius: 5,
+    },
+    retryButtonText: {
+        color: '#fff',
+        fontSize: 16,
+    },
     buttonText: {
         color: "#FFF",
         fontSize: 14,
@@ -53,7 +72,7 @@ const styles = StyleSheet.create({
         marginBottom: 10,
     },
     bodyInput: {
-        height: 100,
+        height: "auto",
         textAlignVertical: "top",
     },
     loadingContainer: {

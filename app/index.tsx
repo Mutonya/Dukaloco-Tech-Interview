@@ -1,4 +1,4 @@
-import { FlatList, Text, TouchableOpacity, View, ActivityIndicator, Alert } from "react-native";
+import { FlatList, Text, TouchableOpacity, View, ActivityIndicator, Alert, RefreshControl } from "react-native";
 import { useContext } from "react";
 import { DukaContext } from "@/app/context/DukaContext";
 import { useRouter } from "expo-router";
@@ -17,7 +17,7 @@ export default function Index() {
         );
     }
 
-    const { blogPosts, deletepost, currentUser, loading, error } = dukaContext;
+    const { blogPosts, deletepost, currentUser, loading, error, loadMorePosts, refreshing, refreshPosts, isOnline } = dukaContext;
 
     const handleDelete = (id: number) => {
         Alert.alert("Delete Post", "Are you sure you want to delete this post?", [
@@ -28,18 +28,27 @@ export default function Index() {
 
     return (
         <View style={styles.container}>
-            {loading ? (
+            {!isOnline && (
+                <View style={styles.offlineContainer}>
+                    <Text style={styles.offlineText}>You are currently offline. Showing cached data.</Text>
+                </View>
+            )}
+
+            {loading && !refreshing && blogPosts.length === 0 ? (
                 <View style={styles.loadingContainer}>
                     <ActivityIndicator size="large" color="#000" />
                 </View>
             ) : error ? (
                 <View style={styles.errorContainer}>
                     <Text style={styles.errorText}>{error}</Text>
+                    <TouchableOpacity style={styles.retryButton} onPress={refreshPosts}>
+                        <Text style={styles.retryButtonText}>Retry</Text>
+                    </TouchableOpacity>
                 </View>
             ) : (
                 <FlatList
                     data={blogPosts}
-                    keyExtractor={(item) => `${item.id}`}
+                    keyExtractor={(item) => `${item.id}`} // Use id as the key
                     renderItem={({ item }) => (
                         <View style={styles.card}>
                             <Text style={styles.postTitle}>{item.title}</Text>
@@ -58,6 +67,11 @@ export default function Index() {
                             </View>
                         </View>
                     )}
+                    onEndReached={loadMorePosts}
+                    onEndReachedThreshold={0.5}
+                    refreshControl={
+                        <RefreshControl refreshing={refreshing} onRefresh={refreshPosts} />
+                    }
                 />
             )}
 
